@@ -1,6 +1,7 @@
 <script src='https://cdnjs.cloudflare.com/ajax/libs/tone/14.5.44/Tone.js'></script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<body>
 <!-- <body onclick="() => {e => e.preventDefault()}">
     <div id="breatheOut">
         <div class="triangle-right"></div>
@@ -83,9 +84,11 @@ body {
 }
 
 #topButtons {
+    z-index: 10000; /* higher than the alarm (which is 9999) */
     background-color: #002c5a;
     display: flex;
     flex-direction: row;
+    display: none; /* <-- HIDE INITIALLY */
     justify-content: space-between; /* 💡 this adds space between buttons */
     gap: 10px; /* optional: consistent spacing */
     padding: 10px; /* optional: adds spacing inside the bar */
@@ -297,18 +300,17 @@ body {
 
 
 .alarm {
-    display: none;
-    position: relative; /* ensures it can float over everything */
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height:100%;
-    /* display: flex; */
+    height: 100%;
+    display: none;
     justify-content: center;
     align-items: center;
     touch-action: manipulation;
-    z-index: 5; /* optional: ensure it's above other elements */
-    transition: transform 0.2s;}
+    z-index: 9999; /* very high to ensure visibility */
+}
 
 .alarm-body {
     position: relative;
@@ -540,6 +542,9 @@ body {
 </style>
 
 <script>
+
+let inAlarmMode = false;
+
 Tone.Transport.start();
 
 document.addEventListener("touchstart", tapHandler, { passive: false }); 
@@ -557,7 +562,6 @@ function tapHandler(event) {
     // Call function, etc
 }
 
-let inAlarmMode = false;
 
 
 // var socketName = "default";
@@ -585,6 +589,7 @@ for (let i = 0; i <= 21; i++) {
 }
 
 let serverOffset = 0;
+let alarmTimeoutId = null;
 
 let speedUp = document.querySelector("#speedUp");
 let slowDown = document.querySelector("#slowDown");
@@ -593,12 +598,19 @@ let goToAlarm = document.querySelector("#goToAlarm");
 speedUp.addEventListener("click", setBPM);
 slowDown.addEventListener("click", resetBPM);
 goToAlarm.addEventListener("click", () => {
-    if (!inAlarmMode) {
-        alarmSection();
+    console.log("CLICKED — inAlarmMode is", inAlarmMode);
+    
+    if (inAlarmMode) {
+        stopAlarm();                         // ✅ stop the audio
+        resetPiece();                        // ✅ reset the visuals
     } else {
-        resetPiece();
+        alarmSection();                      // ✅ go into alarm mode
     }
 });
+
+
+
+
 
 // function syncTimeWithServer() {
 //   return new Promise((resolve) => {
@@ -702,6 +714,7 @@ Tone.Transport.bpm.value = 70;
 let divOut = document.getElementById("mouth"); //NEED TO CHANGE!
 let faceDiv = document.querySelector(".flex-face");
 let alarm = document.querySelector(".alarm");
+let alarm1 = document.querySelector(".alarm-body");
 endTouch(faceDiv);
 
 let stopAction = 0;
@@ -853,40 +866,59 @@ function resetBPM() {
 
 
 let shouldPlayAlarm = true;
+let isAlarmPlaying = false;
+
+let activeAlarmPlayer = null;
 
 function playAlarm() {
-  if (!shouldPlayAlarm) return;
-  instruction.innerHTML = "";
-  alarm.removeEventListener("click", playAlarm);
+    if (!shouldPlayAlarm || isAlarmPlaying) return;
 
-  const player = players[randomInt(0, players.length - 1)]; // ✅ MOVE HERE
+    isAlarmPlaying = true;
+    instruction.innerHTML = "";
+    alarm1.removeEventListener("click", playAlarm);
 
-  player.start();
-  const duration = player.buffer.duration;
-  startWiggle();
+    const player = players[randomInt(0, players.length - 1)];
+    activeAlarmPlayer = player;
 
-  Tone.Transport.scheduleOnce(() => {
-    if (!shouldPlayAlarm) return;
-    stopWiggle();
-    Tone.Transport.scheduleOnce(() => {
-      if (!shouldPlayAlarm) return;
-      playAlarm();
-    }, `+0.5`);
-  }, `+${duration}`);
+    player.start();
+    startWiggle();
+
+    const duration = player.buffer.duration * 1000;
+
+    alarmTimeoutId = setTimeout(() => {
+        stopWiggle();
+        isAlarmPlaying = false;
+
+        // 🚫 Do not reattach the event listener if alarm was canceled
+        if (!shouldPlayAlarm) return;
+
+        activeAlarmPlayer = null;
+        alarm1.addEventListener("click", playAlarm);
+    }, duration);
 }
 
 
+
+
+
+
 function stopAlarm() {
-    shouldPlayAlarm = false;
-    Tone.Transport.cancel(); // ✅ cancel any pending alarm loop
-    stopWiggle();
+   shouldPlayAlarm = false;
+isAlarmPlaying = false;
+Tone.Transport.cancel();
+if (activeAlarmPlayer) {
+    try {
+        activeAlarmPlayer.stop();
+        activeAlarmPlayer.disconnect(); // ✅ Forcefully stops it
+    } catch (e) {}
+    activeAlarmPlayer = null;
+}
+stopWiggle();
     instruction.innerHTML = "";
     alarmGain.gain.value = 0;
 
     // Just in case something's still running:
-    players.forEach(p => {
-        try { p.stop(); } catch(e) {}
-    });
+ 
 }
 
 
@@ -953,23 +985,43 @@ let overlay = document.getElementById("overlay");
 
 function resetPiece() {
     inAlarmMode = false;
-    Tone.Transport.cancel(); // ⛔ cancel scheduled alarm replays and wiggle stops
+    shouldPlayAlarm = false;
 
-    stopAlarm();
+    // Immediately stop audio and visual loops
+    Tone.Transport.cancel(); // ⛔ stops all scheduled callbacks
+    players.forEach(player => {
+        try { player.stop(); } catch (e) {}
+    });
+
+    stopWiggle(); // ⛔ stop visual animation
+    alarmGain.gain.value = 0;
     alarm.style.display = "none";
     faceDiv.style.display = "flex";
-    instruction.innerHTML = "Click on the mouth for sound!";
-    instruction.style.color = "white";
-    document.body.style.backgroundColor = "#e8e8e2";
-    preStart();
-    alarmGain.gain.value = 0;
+
+    // instruction.innerHTML = "Click on the mouth for sound!";
+    // instruction.style.color = "white";
+    // instruction.style.visibility = "visible";
+
+    // Restore visuals
+    document.body.style.backgroundColor = "#e8e8e2"; // cream
+    document.querySelector("#topButtons").style.backgroundColor = "#002c5a"; // dark panel again
+
+    // Reset gain and button states
     breatheGain.gain.value = 1;
     speedUp.style.visibility = "visible";
     slowDown.style.visibility = "visible";
-    goToAlarm.removeEventListener("click", resetPiece);
-    goToAlarm.addEventListener("click", alarmSection);
-    goToAlarm.innerHTML = "Go To Alarm"
+    goToAlarm.innerHTML = "Go To Alarm";
+
+    alarm.removeEventListener("click", playAlarm); // ✅ stop recursive alarm loop
+
+   overlay.style.display = "none";
+overlay.style.pointerEvents = "none";
+sequencePlaying = false;
+faceDiv.addEventListener("touchstart", playMelody);
 }
+
+
+
 
 
 
@@ -984,35 +1036,48 @@ function killSleep1() {
 }
 
 let sec = ""
-
 function alarmSection() {
-    inAlarmMode = true; // ✅ set mode flag
+    console.log("🔵 BEFORE SETTING inAlarmMode = true", inAlarmMode);
+    inAlarmMode = true;
+    console.log("🟢 AFTER SETTING inAlarmMode = true", inAlarmMode);
+    shouldPlayAlarm = true;
     alarmGain.gain.value = 1;
     breatheGain.gain.value = 0;
     stopZStream();
     breatheLoop.stop();
     seq1.stop();
+
     faceDiv.style.display = "none";
     alarm.style.display = "flex";
     alarm.style.visibility = "visible";
+
     instruction.innerHTML = "click alarm!";
     instruction.style.color = "black";
     instruction.style.visibility = "visible";
-    alarm.addEventListener("click", playAlarm);
+
+    alarm1.removeEventListener("click", playAlarm); // in case it's duplicated
+    alarm1.addEventListener("click", playAlarm);    // ✅ needed every time
 
     speedUp.style.visibility = "hidden";
     slowDown.style.visibility = "hidden";
     goToAlarm.innerHTML = "Go Back To Sleep";
+
+    document.body.style.backgroundColor = "#e8e8e2"; // cream
+    document.querySelector("#topButtons").style.backgroundColor = "#e8e8e2"; // match body
 }
+
 
 
 overlay.addEventListener('click', startAudio);
 
 async function startAudio() {
     await Tone.start();
-    //await syncTimeWithServer(); // ⏳ wait until serverOffset is ready // Make sure this doesn't break something 
     console.log('Audio is ready and time synced!');
     overlay.style.display = "none";
+    overlay.style.pointerEvents = "none";
+
+    // ✅ Show the top buttons now that interaction has begun
+    document.getElementById("topButtons").style.display = "flex";
 }
 function preStart() {
     overlay.style.display = "flex";
