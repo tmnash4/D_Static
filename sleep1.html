@@ -1,0 +1,1072 @@
+<script src='https://cdnjs.cloudflare.com/ajax/libs/tone/14.5.44/Tone.js'></script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- <body onclick="() => {e => e.preventDefault()}">
+    <div id="breatheOut">
+        <div class="triangle-right"></div>
+        <div class="triangle-text">Play</div> -->
+  
+      <div id="instruction">Click on the mouth for sound!</div>
+          <div id="topButtons">
+      <button class="topButtonsClass" id="speedUp">Speed Up</button>
+      <button class="topButtonsClass" id="slowDown">Slow Down</button>
+      <button class="topButtonsClass" id="goToAlarm">Go To Alarm</button>
+      </div>
+      <div  class="flex-face" id="face">
+        <div  class="inside-flex" id="main-face">
+            <div  class="inside-inside-flex" id="eyeline">
+                <div class="eye-flex" id="left-eye">
+                    <div class="inner-eye"></div>
+                  </div>
+                  
+                  <div class="eye-flex" id="right-eye">
+                    <div class="inner-eye"></div>
+                  </div>
+        </div>
+        <div  id="mouth"></div>
+        </div>
+    </div>
+    <div id="z-stream"></div>
+    <div class="alarm">
+        <div class="connecter"></div>
+        <div class="top-left"></div>
+        <div class="top-right"></div>
+        <div class="center"></div>
+        <div class="top"></div>
+        <div class="leg-right"></div>
+        <div class="leg-left"></div>
+        <div class="alarm-body">
+            <div class="alarm-inside">
+                <div class="num" id="zero"></div>
+                <div class="num" id="three"></div>
+                <div class="num" id="six"></div>
+                <div class="num" id="nine"></div>
+                <div class="num1" id="one"></div>
+                <div class="num1" id="two"></div>
+                <div class="num1" id="four"></div>
+                <div class="num1" id="five"></div>
+                <div class="num1" id="seven"></div>
+                <div class="num1" id="eight"></div>
+                <div class="num1" id="ten"></div>
+                <div class="num1" id="eleven"></div>
+                <div class="circle"></div>
+                <div class="hand" id="bigHand"></div>
+                <div class="hand" id="littleHand"></div>
+            </div>
+        </div>
+    </div>
+</div><div id="overlay">Click to proceed<br><br></div> 
+
+<style>
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* prevents scroll */
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  background: #e8e8e2;
+}
+
+.topButtonsClass {
+    background-color: #757b86;
+    color: white;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size: 1.3rem;
+}
+
+#topButtons {
+    background-color: #002c5a;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between; /* 💡 this adds space between buttons */
+    gap: 10px; /* optional: consistent spacing */
+    padding: 10px; /* optional: adds spacing inside the bar */
+}
+
+#instruction {
+    position: absolute;
+    text-align: center;
+    top: 10%;
+    width: 100%;
+    font-size: 1.5rem;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    color: white;
+}
+
+
+#overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0); /* transparent black */
+  z-index: 10; /* higher than your other divs */
+  display: flex; 
+  justify-content: center;
+  align-items: center;
+  font-size: 1.7rem; /* stays same on all devices */
+  text-align: center;
+  color: white;
+}
+#z-stream {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 20; /* ensure it renders over the face */
+}
+
+.z {
+    position: absolute;
+    color: #e0e1dd;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+    font-size: 3rem;
+    opacity: 1;
+    animation: floatZ 2s ease-out forwards;
+}
+
+@keyframes floatZ {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-400px) scale(1.5); /* was -150px */
+        opacity: 0;
+    }
+}
+/* #breatheOut {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: fit-content;
+  height: fit-content;
+  cursor: pointer;
+} */
+
+.triangle-right {
+  width: 0;
+  height: 0;
+  border-top: 100px solid transparent;
+  border-bottom: 100px solid transparent;
+  border-left: 170px solid #010203; /* triangle color */
+}
+
+.triangle-text {
+  position: absolute;
+  top: 50%;
+  left: 58%;
+  transform: translate(-100%, -50%);
+  color: white;
+  font-weight: bold;
+  font-size: 48px;
+  pointer-events: none; /* so clicks hit the triangle */
+}
+
+
+#breathIn {
+  background: #ffffff;
+}
+
+.flex-face {
+    display: flex;
+    /* display: none; */
+    justify-content: center;
+    align-items: center;
+    touch-action: manipulation;
+    /* display: none; */
+ 
+}
+
+
+
+.inside-flex {
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+    align-items: center;
+    touch-action: manipulation;
+
+ 
+}
+
+.inside-inside-flex {
+    position: relative; /* 🔑 Required to anchor absolute eyes */
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    touch-action: manipulation;
+}
+
+.eye-flex {
+    position: absolute;
+    top: 50%;
+    width: 80px;
+    height: 50px;
+    background-color: black;
+    border-radius: 0 0 80px 80px;
+    touch-action: manipulation;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* align inner-eye to the bottom */
+    overflow: hidden; /* ensure inner-eye doesn't spill outside */
+}
+
+.inner-eye {
+    position: relative;
+    top: -10px;
+    width: 80%;
+    height: 80%;
+    background-color: #757b86;
+    border-radius: 0 0 40px 40px;
+}
+
+#left-eye {
+    left: 20%;
+}
+
+#right-eye {
+    right: 20%;
+}
+
+#face{
+    width: 100%;
+    height: 100%;
+    background-color: #002c5a;
+    /* background-color: var(--backColor); */
+    touch-action: manipulation;
+}
+
+#main-face {
+    position: relative;
+    width: 90%;
+    /* max-width: 600px;
+    min-width: 400px; */
+    height: 70%;
+    background-color: #757b86;
+    /* background-color: var(--backColor1); */
+    border-radius: 50%;
+    touch-action: manipulation;
+}
+
+
+
+
+
+#mouth {
+    position: relative;
+    top: 30px;
+    border-radius: 0 0 200px 200px;
+    /* transform: translate(-50%, -50%); */
+    height: 100px;
+    width: 200px;
+    background-color: #002c5a;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+
+}
+
+
+@media screen and (min-width: 800px) {
+    #main-face {
+    width: 80%;
+    max-width: 500px;
+    min-width: 400px;
+    height: 80%;
+    /* background-color: red; */
+    border-radius: 50%;
+    touch-action: manipulation;
+}
+
+
+
+}
+
+
+
+.alarm {
+    display: none;
+    position: relative; /* ensures it can float over everything */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height:100%;
+    /* display: flex; */
+    justify-content: center;
+    align-items: center;
+    touch-action: manipulation;
+    z-index: 5; /* optional: ensure it's above other elements */
+    transition: transform 0.2s;}
+
+.alarm-body {
+    position: relative;
+    clip-path: circle(50% at 50% 50%);
+    width: 70vw;
+    height: 70vw;
+    background-color: rgb(221, 0, 0);
+}
+
+.alarm-inside {
+    position: relative;
+    clip-path: circle(50% at 50% 50%);
+    width: 80%;
+    height: 80%;
+    background-color: rgb(0, 0, 0);
+    left: 10%;
+    top: 10%;
+}
+
+/* <div class="alarm">
+        <div class="top-left"></div>
+        <div class="top-right"></div>
+        <div class="center"></div>
+        <div class="top"></div>
+        <div class="leg-right"></div>
+        <div class="leg-left"></div>
+        <div class="alarm-body">
+            <div class="alarm-inside"></div>
+        </div>
+    </div> */
+
+.top-left {
+    position: absolute;
+    clip-path: circle(50% at 50% 50%);
+    transform: rotate(-10deg);
+    width: 30vw;
+    height: 30vw;
+    background-color: rgb(221, 0, 0);
+    left: 18%;
+    top: 32%;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.top-right {
+    position: absolute;
+    clip-path: circle(50% at 50% 50%);
+    transform: rotate(-10deg);
+    width: 30vw;
+    height: 30vw;
+    background-color: rgb(221, 0, 0);
+    right: 18%;
+    top: 32%;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.leg-right {
+    position: absolute;
+    clip-path: ellipse(16% 40% at 50% 50%);
+    transform: rotate(10deg);
+    width: 40vw;
+    height: 40vw;
+    background-color: rgb(221, 0, 0);
+    left: 13%;
+    top: 52%;
+    overflow: hidden;
+}
+
+.leg-left {
+    position: absolute;
+    clip-path: ellipse(16% 40% at 50% 50%);
+    transform: rotate(-10deg);
+    width: 40vw;
+    height: 40vw;
+    background-color: rgb(221, 0, 0);
+    right: 13%;
+    top: 52%;
+    overflow: hidden;
+}
+
+/* <div class="hand" id="bigHand"></div>
+                <div class="hand" id="littleHand"></div>
+                <div class="circle"></div> */
+.circle {
+    position: absolute;
+    clip-path: circle(50% at 50% 50%);
+    width: 15%;
+    height: 15%;
+    background-color: rgb(255, 14, 14);
+    left: 42.5%;
+    top: 42.5%;
+}
+
+.hand {
+    position: absolute;
+    clip-path: polygon(40% 0%, 40% 20%, 100% 20%, 100% 80%, 40% 80%, 40% 100%, 0% 50%);
+    background-color: rgb(73, 255, 246);
+
+}
+
+#bigHand {
+    width: 23vw;
+    height:7vw;
+    left: 10%;
+    top: 43%;
+}
+
+#littleHand {
+    transform: rotate(260deg);
+    width: 15vw;
+    height: 5vw;
+    right: 33%;
+    top: 58%;
+}
+
+
+.num {
+    position: absolute;
+    clip-path: polygon(43% 20%, 42% 81%, 21% 100%, 0 77%, 0 18%, 23% 0);
+    width: 5vw;
+    height:13vw;
+    background-color: rgb(255, 14, 14);
+}
+
+.num1 {
+    position: absolute;
+    clip-path: polygon(43% 20%, 42% 81%, 21% 100%, 0 77%, 0 18%, 23% 0);
+    width: 5vw;
+    height:10vw;
+    background-color:  rgb(73, 255, 246);
+}
+
+#zero {
+    left: 47%;
+    top: 2%
+}
+
+#three {
+    transform: rotate(90deg);
+    right: 8%;
+    top: 40%
+}
+
+#six {
+    left: 47%;
+    bottom: 2%
+}
+
+#nine {
+    transform: rotate(90deg);
+    left: 8%;
+    top: 40%
+}
+
+#one {
+    transform: rotate(33deg);
+    right: 23%;
+    top: 8% 
+}
+
+#seven {
+    transform: rotate(33deg);
+    left: 23%;
+    bottom: 8% 
+}
+
+#two {
+    transform: rotate(66deg);
+    right: 10%;
+    top: 25% 
+}
+
+#eight {
+    transform: rotate(66deg);
+    left: 10%;
+    bottom: 25% 
+}
+
+#four {
+    transform: rotate(110deg);
+    right: 12%;
+    bottom: 21% 
+
+}
+
+#ten {
+    transform: rotate(110deg);
+    left: 12%;
+    top: 21% 
+}
+
+#five {
+    transform: rotate(150deg);
+    right: 28%;
+    bottom: 6% 
+}
+
+#eleven {
+    transform: rotate(160deg);
+    left: 26%;
+    top: 6% 
+}
+
+.connecter {
+    position: absolute;
+    clip-path: polygon(14% 60%, 20% 46%, 27% 33%, 35% 28%, 57% 28%, 65% 34%, 72% 48%, 76% 60%, 70% 63%, 66% 50%, 59% 36%, 33% 36%, 25% 48%, 20% 61%);    transform: rotate(10deg);
+    transform: rotate(-2deg);
+    width: 70vw;
+    height: 50vw;
+    background-color: rgb(221, 0, 0);
+    left: 18%;
+    top: 20%;
+    overflow: hidden;
+}
+
+.top {
+    position: absolute;
+    clip-path: polygon(25% 31%, 63% 32%, 68% 40%, 63% 48%, 49% 48%, 49% 63%, 37% 63%, 37% 48%, 25% 48%, 23% 40%);
+    transform: rotate(-2deg);
+    width: 25vw;
+    height: 25vw;
+    background-color: rgb(221, 0, 0);
+    left: 38%;
+    top: 28%;
+    overflow: hidden; 
+}
+
+</style>
+
+<script>
+Tone.Transport.start();
+
+document.addEventListener("touchstart", tapHandler, { passive: false }); 
+
+var tapedTwice = false;
+
+function tapHandler(event) {
+    if (!tapedTwice) {
+        tapedTwice = true;
+        setTimeout(function () { tapedTwice = false; }, 300);
+        return false;
+    }
+    event.preventDefault(); // Prevent Page Zoom.
+
+    // Call function, etc
+}
+
+let inAlarmMode = false;
+
+
+// var socketName = "default";
+// var socket = io();  
+
+let colorCycleInterval;
+let marginCycleInterval;
+let hue = 200;  // starting hue
+let hueSpeed = 1; // tweak for faster/slower cycling
+let marginNum = 0;
+let sequencePlaying = false;
+
+
+let alarmGain = new Tone.Gain(1).toDestination();
+
+let buffers = [];
+let players = [];
+
+for (let i = 0; i <= 21; i++) {
+  const buffer = new Tone.Buffer(`media/alarms/alarm${i}.mp3`);
+  buffers.push(buffer);
+
+  const player = new Tone.Player(buffer).connect(alarmGain);
+  players.push(player);
+}
+
+let serverOffset = 0;
+
+let speedUp = document.querySelector("#speedUp");
+let slowDown = document.querySelector("#slowDown");
+let goToAlarm = document.querySelector("#goToAlarm");
+
+speedUp.addEventListener("click", setBPM);
+slowDown.addEventListener("click", resetBPM);
+goToAlarm.addEventListener("click", () => {
+    if (!inAlarmMode) {
+        alarmSection();
+    } else {
+        resetPiece();
+    }
+});
+
+// function syncTimeWithServer() {
+//   return new Promise((resolve) => {
+//     const clientSentTime = Date.now();
+//     socket.emit("get_server_time", clientSentTime);
+
+//     socket.once("server_time_response", ({ serverTime, clientTime }) => {
+//       const clientReceiveTime = Date.now();
+//       const roundTrip = clientReceiveTime - clientTime;
+//       const approxLatency = roundTrip / 2;
+
+//       serverOffset = (serverTime + approxLatency) - clientReceiveTime;
+
+//       console.log("Estimated server offset (ms):", serverOffset);
+//       resolve(); // ✅ resolves once offset is set
+//     });
+//   });
+// }
+
+
+
+function startColorCycle(element) {
+    if (colorCycleInterval) return; // prevent multiple intervals
+    colorCycleInterval = setInterval(() => {
+        hue += hueSpeed;
+        if (hue >= 360) hue = 0; // loop seamlessly forever
+        element.style.backgroundColor = `hsl(${hue}, 100%, 60%)`;
+    }, 30);
+}
+
+function startMarginCycle(element) {
+    if (marginCycleInterval) return;
+    marginCycleInterval = setInterval(() => {
+        if (marginNum == 0) {
+        element.style.margin = "21px"
+        marginNum = 1;
+        } else {
+        element.style.margin = "20px"
+        marginNum = 0
+        }
+    }, 300)
+}
+
+function stopMarginCycle() {
+    clearInterval(marginCycleInterval);
+    marginCycleInterval = null;
+}
+
+function stopColorCycle() {
+    clearInterval(colorCycleInterval);
+    colorCycleInterval = null;
+}
+
+
+let rev = new Tone.Reverb({
+    decay: 0.4
+}).toDestination();
+let vib = new Tone.Vibrato({
+    frequency: randomInt(2, 5),
+    width: 1
+}).connect(rev);
+lpfilt = new Tone.Filter(1500, "lowpass", -12).connect(vib)
+let synth = new Tone.Synth({
+    envelope: {
+        attack: 0.8,
+        decay: 0,
+        sustain: 1,
+        release: 0.3
+    },
+    oscillator: 'triangle'
+}).connect(lpfilt);
+
+let breatheGain = new Tone.Gain(1).toDestination()
+
+const breatheInSynth = new Tone.NoiseSynth({
+    noise: {
+        type: 'pink'
+    },
+    envelope: {
+        attack: 1.5,
+        decay: 0.2,
+        sustain: 0.5,
+        release: 1
+    }
+}).connect(breatheGain)
+const breatheOutSynth = new Tone.NoiseSynth({
+    noise: {
+        type: 'white'
+    },
+    envelope: {
+        attack: 0.3,
+        decay: 0.3,
+        sustain: 0.3,
+        release: 2
+    }
+}).connect(breatheGain)
+
+
+Tone.Transport.bpm.value = 70;
+
+let divOut = document.getElementById("mouth"); //NEED TO CHANGE!
+let faceDiv = document.querySelector(".flex-face");
+let alarm = document.querySelector(".alarm");
+endTouch(faceDiv);
+
+let stopAction = 0;
+let noteArray = [];
+let seqArrays = [
+["C5", null, "B4", null, "Bb4", null, null, "A4", "Ab4", null, "G4", null, "Gb4", null, null, "F4", "E4", null, "D#4", null, "D4", null, null, "C#4", "C4", null, "B3", null, "Bb3", null, null, "A3", "Ab3", null, "G3", null, "Gb3", null, null, "F3", "E3", null, "D#3", null, "D3", null, null, "C#3", "C#3", "C#3", "C#3", "C#3"],
+["A4", null, "F#4", null, "F4", null, "F#4", null, "E4", null, "Eb4", null, "Eb4", null, "D4", null, "C4", null, "C4", null, "A3", null, "G#3", null, "A3", null, "F#3", null, "F3", null, "F#3", null, "E3", null, "Eb3", null, "Eb3", null, "D3", null, "C3", null, "C3", null, "A2", null, "G#2", "G#2", "G#2", "G#2", "G#2", "G#2"],
+["Eb4", null, "Eb4", null, "D4", null, "C4", null, "B3", null, "B3", null, "A3", null, "Ab3", null, "G3", null, "F#3", null, "F#3", null, "F3", null, "Eb3", null, "Eb3", null, "D3", null, "C3", null, "B3", null, "B2", null, "A2", null, "Ab2", null, "G2", null, "F#2", null, "F#2", null, "F2", "F2", "F2", "F2", "F2", "F2"]
+]
+
+seqArrays.forEach((arr) => {
+    console.log(arr.length)
+})
+
+let seq1 = new Tone.Sequence(function(time, note){
+    noteArray.push(note);
+    console.log(noteArray.length);
+  if (note) {
+const noteDuration = Tone.Time('2n').toSeconds(); // Convert once at current BPM
+synth.triggerAttack(note, time);
+synth.triggerRelease(time + noteDuration);  }
+  if (noteArray.length == 28) {
+    console.log("hello!!")
+    noteArray = [];
+    noteArray = [];
+setTimeout(() => {
+    divOut.style.visibility = "visible"
+    breatheLoop.stop();
+    stopZStream();
+    sequencePlaying = false; // ✅ Allow next trigger
+    setTimeout(() => {
+        instruction.innerHTML = "click mouth again!"
+        instruction.style.visibility = "visible";
+    }, 1000);
+}, 2000);
+  } 
+}, seqArrays[randomInt(0, 2)], "4n");
+seq1.loop = false;
+
+let breatheLoop = new Tone.Loop((time) => {
+    breatheInSynth.triggerAttackRelease("2n", time);
+    breatheOutSynth.triggerAttackRelease("2n", time + Tone.Time("1n"));
+
+    // Animate mouth shape
+    breatheMouth(true); // inhale
+    setTimeout(() => breatheMouth(false), Tone.Time("1n").toMilliseconds()); // exhale
+}, "2m");
+
+let firstColor = "#FFFF99";
+let secondColor = "#FF3300";
+let truefirst =  "#FFFF99";
+let trueSecond = "#FF3300";
+
+faceDiv.addEventListener("touchstart", () => {
+    playMelody()
+
+});
+
+function spawnZ() {
+    const z = document.createElement('div');
+    z.classList.add('z');
+    z.textContent = 'Z';
+
+    // Random horizontal offset
+    const xOffset = Math.random() * 40 - 20; // between -20 and 20
+    z.style.left = `${xOffset}px`;
+
+    // Random size
+    const size = Math.random() * 1.5 + 1; // between 1rem and 2.5rem
+    z.style.fontSize = `${size}rem`;
+
+    // Random font
+    const fonts = ["serif", "cursive", "monospace", "Georgia", "Arial", "Comic Sans MS"];
+    const font = fonts[Math.floor(Math.random() * fonts.length)];
+    z.style.fontFamily = font;
+
+    document.getElementById('z-stream').appendChild(z);
+
+    setTimeout(() => {
+        z.remove();
+    }, 2000);
+}
+
+
+let zInterval;
+
+function startZStream() {
+    if (!zInterval) {
+        zInterval = setInterval(spawnZ, 300); // spawn every 300ms
+    }
+}
+
+function stopZStream() {
+    clearInterval(zInterval);
+    zInterval = null;
+}
+
+let instruction = document.getElementById("instruction");
+let totalDuration;
+
+function playMelody() {
+    if (sequencePlaying) return; // 🚫 Don't restart if already playing
+    sequencePlaying = true;
+
+    const totalSteps = seq1.length;
+    const stepTime = Tone.Time(seq1.subdivision).toSeconds();
+    const totalDuration = totalSteps * stepTime;
+
+    instruction.style.visibility = "hidden";
+
+    Tone.Transport.stop();
+    seq1.stop();
+    Tone.Transport.cancel();
+
+    seq1.start(0);
+    breatheLoop.start(0);
+    startZStream();
+
+    const beatLength = Tone.Time("4n").toSeconds();
+    const localNow = Tone.now();
+    const serverNow = (Date.now() + serverOffset) / 1000;
+    const timeSinceLastBeat = serverNow % beatLength;
+    const delay = beatLength - timeSinceLastBeat;
+    Tone.Transport.start()
+    //Tone.Transport.start("+" + delay.toFixed(3));
+}
+
+// socket.on("set_bpm", (deltaBpm) => {
+//     const currentBpm = Tone.Transport.bpm.value;
+//     const targetBpm = currentBpm + deltaBpm;
+//     console.log(`Increasing BPM: ${currentBpm} → ${targetBpm}`);
+//     Tone.Transport.bpm.rampTo(targetBpm, 0.5); // smooth transition
+// });
+
+function setBPM() {
+    currentBpm = Tone.Transport.bpm.value;
+    targetBpm = currentBpm += 30
+    Tone.Transport.bpm.rampTo(targetBpm, 0.5); // smooth transition 
+}
+
+function resetBPM() {
+    currentBpm = Tone.Transport.bpm.value;
+    targetBpm = currentBpm -= 30
+    Tone.Transport.bpm.rampTo(targetBpm, 0.5); // smooth transition 
+}
+
+
+// const player = players[randomInt(0, players.length - 1)];
+
+
+let shouldPlayAlarm = true;
+
+function playAlarm() {
+  if (!shouldPlayAlarm) return;
+  instruction.innerHTML = "";
+  alarm.removeEventListener("click", playAlarm);
+
+  const player = players[randomInt(0, players.length - 1)]; // ✅ MOVE HERE
+
+  player.start();
+  const duration = player.buffer.duration;
+  startWiggle();
+
+  Tone.Transport.scheduleOnce(() => {
+    if (!shouldPlayAlarm) return;
+    stopWiggle();
+    Tone.Transport.scheduleOnce(() => {
+      if (!shouldPlayAlarm) return;
+      playAlarm();
+    }, `+0.5`);
+  }, `+${duration}`);
+}
+
+
+function stopAlarm() {
+    shouldPlayAlarm = false;
+    Tone.Transport.cancel(); // ✅ cancel any pending alarm loop
+    stopWiggle();
+    instruction.innerHTML = "";
+    alarmGain.gain.value = 0;
+
+    // Just in case something's still running:
+    players.forEach(p => {
+        try { p.stop(); } catch(e) {}
+    });
+}
+
+
+let wiggleInterval;
+let deg = 0;
+
+function startWiggle() {
+  wiggleInterval = setInterval(() => {
+    if (deg == 0) {
+      alarm.style.transform = "rotate(10deg) scale(1.1)";
+      deg = 1;
+    } else {
+      alarm.style.transform = "rotate(-10deg) scale(1)";
+      deg = 0;
+    }
+  }, 100);
+}
+
+function stopWiggle() {
+  clearInterval(wiggleInterval);
+  alarm.style.transform = "rotate(0deg) scale(1)"; // reset position
+}
+
+
+
+function generatePitch() {
+    vib.frequency.value = randomFloat(2, 5),
+    synth.triggerAttack(pitchArray[iter]);
+    synth.envelope.attack.value = randomFloat(0.2, 0.5)
+    iter++;
+    if (iter >= pitchArray.length) {
+    iter = 0;
+    }
+}
+
+function endTouch(element) {
+    document.addEventListener("touchend", () => {
+    synth.triggerRelease()
+    stopColorCycle()
+    stopMarginCycle()
+    })
+}
+
+
+let overlay = document.getElementById("overlay");
+// overlay.style.display = "none"; //remove this
+
+
+
+
+// socket.on("get_section", (data) => {
+//      if (data == "alarm") {
+//         alarmSection();
+//     } else if (data == "alarmS") {
+//         stopAlarm();
+//         sec = "end"
+//         alarmSection()
+//     } else if (data == "resetSleep1") {
+//         resetPiece()
+//     } else if (data == "killSleep1") {
+//         killSleep1()
+//     }
+// })
+
+function resetPiece() {
+    inAlarmMode = false;
+    Tone.Transport.cancel(); // ⛔ cancel scheduled alarm replays and wiggle stops
+
+    stopAlarm();
+    alarm.style.display = "none";
+    faceDiv.style.display = "flex";
+    instruction.innerHTML = "Click on the mouth for sound!";
+    instruction.style.color = "white";
+    document.body.style.backgroundColor = "#e8e8e2";
+    preStart();
+    alarmGain.gain.value = 0;
+    breatheGain.gain.value = 1;
+    speedUp.style.visibility = "visible";
+    slowDown.style.visibility = "visible";
+    goToAlarm.removeEventListener("click", resetPiece);
+    goToAlarm.addEventListener("click", alarmSection);
+    goToAlarm.innerHTML = "Go To Alarm"
+}
+
+
+
+
+function killSleep1() {
+    document.body.style.backgroundColor = "black"
+    instruction.style.visibility = "visible";
+    instruction.innerHTML = "Good Job!"
+    alarmGain.gain.value = 0;
+    alarm.style.visibility = "hidden";
+    faceDiv.style.display = "none";
+}
+
+let sec = ""
+
+function alarmSection() {
+    inAlarmMode = true; // ✅ set mode flag
+    alarmGain.gain.value = 1;
+    breatheGain.gain.value = 0;
+    stopZStream();
+    breatheLoop.stop();
+    seq1.stop();
+    faceDiv.style.display = "none";
+    alarm.style.display = "flex";
+    alarm.style.visibility = "visible";
+    instruction.innerHTML = "click alarm!";
+    instruction.style.color = "black";
+    instruction.style.visibility = "visible";
+    alarm.addEventListener("click", playAlarm);
+
+    speedUp.style.visibility = "hidden";
+    slowDown.style.visibility = "hidden";
+    goToAlarm.innerHTML = "Go Back To Sleep";
+}
+
+
+overlay.addEventListener('click', startAudio);
+
+async function startAudio() {
+    await Tone.start();
+    //await syncTimeWithServer(); // ⏳ wait until serverOffset is ready // Make sure this doesn't break something 
+    console.log('Audio is ready and time synced!');
+    overlay.style.display = "none";
+}
+function preStart() {
+    overlay.style.display = "flex";
+    overlay.innerHTML = "Click to proceed";
+}
+
+// socket.on("set_section", (data) => {
+//     if (data == "alarm") {
+//         alarmSection()
+//     } else if (data == "alarmS") {
+//         stopAlarm()
+//         sec = "end"
+//         alarmSection()
+//     } else if (data == "resetSleep1") {
+//         resetPiece()
+//     } else if (data == "killSleep1") {
+//         killSleep1()
+//     }
+// })
+
+function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randomFloat(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
+function breatheMouth(inhale = true) {
+    if (inhale) {
+        divOut.style.transition = "all 1.5s ease-in-out";
+        divOut.style.width = "150px";
+        divOut.style.height = "150px";
+        divOut.style.borderRadius = "200px";
+    } else {
+        divOut.style.transition = "all 2s ease-in-out";
+        divOut.style.width = "200px";
+        divOut.style.height = "100px";
+        divOut.style.borderRadius = "0 0 200px 200px";
+    }
+}
+
+// Helper function to convert HEX to RGB
+function hexToRgb(hex) {
+    const bigint = parseInt(hex.slice(1), 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+
+    return [r, g, b];
+}
+
+</script>
+
+
+
+</body>

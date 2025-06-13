@@ -1,0 +1,231 @@
+<script src='https://cdnjs.cloudflare.com/ajax/libs/tone/14.5.44/Tone.js'></script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<body onclick="() => {e => e.preventDefault()}">
+<div class="halfDiv" id="breatheOut">Hold down as you breath out</div>
+<div class="halfDiv" id="breathIn">Release as you breathe in</div>
+<div id="overlay"><br>Please turn up your cellphone volume, and turn your phone off silent mode if necessary. <br><br> Click Here to Continue!</div>
+
+
+<style>
+
+
+body {
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    /* touch-action: pan-y; */
+    /* touch-action:none; */
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #ffffff; /* optional */
+}
+
+#overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0); /* transparent black */
+  z-index: 10; /* higher than your other divs */
+  display: flex; 
+  justify-content: center;
+  align-items: center;
+  font-size: 1.7rem; /* stays same on all devices */
+  text-align: center;
+  color: white;
+}
+
+.halfDiv {
+  flex: 1; /* take up equal space */
+  margin: 20px; /* space around each */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: white; /* or whatever */
+  box-sizing: border-box;
+  border-radius: 10px; /* optional */
+  font-size: 1.7rem; /* stays same on all devices */
+  text-align: center;
+}
+
+/* Optional: give them different colors */
+#breatheOut {
+  background: hsl(200, 100%, 60%);
+  transition: margin 0.5s
+}
+
+#breathIn {
+  background: #ffffff;
+}
+
+</style>
+
+<script>
+
+document.addEventListener("touchstart", tapHandler, { passive: false }); 
+
+var tapedTwice = false;
+
+function tapHandler(event) {
+    if (!tapedTwice) {
+        tapedTwice = true;
+        setTimeout(function () { tapedTwice = false; }, 300);
+        return false;
+    }
+    event.preventDefault(); // Prevent Page Zoom.
+
+    // Call function, etc
+}
+
+// var socketName = "default";
+// var socket = io();  
+
+let colorCycleInterval;
+let marginCycleInterval;
+let hue = 200;  // starting hue
+let hueSpeed = 1; // tweak for faster/slower cycling
+let marginNum = 0;
+
+function startColorCycle(element) {
+    if (colorCycleInterval) return; // prevent multiple intervals
+    colorCycleInterval = setInterval(() => {
+        hue += hueSpeed;
+        if (hue >= 360) hue = 0; // loop seamlessly forever
+        element.style.backgroundColor = `hsl(${hue}, 100%, 60%)`;
+    }, 30);
+}
+
+function startMarginCycle(element) {
+    if (marginCycleInterval) return;
+    marginCycleInterval = setInterval(() => {
+        if (marginNum == 0) {
+        element.style.margin = "21px"
+        marginNum = 1;
+        } else {
+        element.style.margin = "20px"
+        marginNum = 0
+        }
+    }, 300)
+}
+
+function stopMarginCycle() {
+    clearInterval(marginCycleInterval);
+    marginCycleInterval = null;
+}
+
+function stopColorCycle() {
+    clearInterval(colorCycleInterval);
+    colorCycleInterval = null;
+}
+
+let gainN = new Tone.Gain(1).toDestination();
+
+let rev = new Tone.Reverb({
+    decay: 0.4
+}).connect(gainN);
+let vib = new Tone.Vibrato({
+    frequency: randomInt(2, 5),
+    width: 1
+}).connect(rev);
+lpfilt = new Tone.Filter(1000, "lowpass", -12).connect(vib)
+let synth = new Tone.Synth({
+    envelope: {
+        attack: 0.5,
+        decay: 0,
+        sustain: 1,
+        release: 0.3
+    },
+    oscillator: 'sine'
+}).connect(lpfilt);
+
+let pitchArrays = [["C5", "B4", "Bb4", "A4", "Ab4", "G4", "Gb4", "F4", "E4", "D#4", "D4", "C#4"], 
+                   ["A4", "F#4", "F4", "F#4", "E4", "Eb4", "Eb4", "D4", "C4", "C4", "A3", "G#3"],
+                   ["Eb4", "Eb4", "D4", "C4", "B3", "B3", "A3", "Ab3", "G3", "F#3", "F#3", "F3"]
+                ];
+let iter = 0;
+let divOut = document.getElementById("breatheOut");
+divOut.addEventListener("touchstart", () => {
+    generatePitch()
+    startColorCycle(divOut)
+    startMarginCycle(divOut)
+})
+
+let pitchArray = pitchArrays[randomInt(0, pitchArrays.length - 1)];
+
+
+function generatePitch() {
+    vib.frequency.value = randomFloat(2, 5);
+    synth.envelope.attack.value = randomFloat(0.2, 0.5);
+    synth.triggerAttack(pitchArray[iter]);
+
+    iter++;
+    if (iter >= pitchArray.length) {
+        iter = 0;
+        pitchArray = pitchArrays[randomInt(0, pitchArrays.length - 1)];
+    }
+}
+divOut.addEventListener("touchend", () => {
+    synth.triggerRelease()
+    stopColorCycle()
+    stopMarginCycle()
+})
+
+let overlay = document.getElementById("overlay");
+overlay.addEventListener('click', startAudio);
+
+
+// socket.on("get_section", (data) => {
+//     if (data == "killSleep") {
+//         killSleep()
+//     } else if (data == "resetSleep") {
+//         resetSleep()
+//     } else if (data == "stop_sleep") {
+//         stopSleep()
+//     }
+// })
+
+function resetSleep() {
+    gainN.gain.rampTo(1, 0.1);
+    overlay.style.display = "flex";
+    overlay.innerHTML = "Please turn up your cellphone volume, and turn your phone off silent mode if necessary. <br><br> Click Here to Continue!";
+    overlay.addEventListener('click', startAudio);
+}
+
+function killSleep() {
+    gainN.gain.rampTo(0, 0.1);
+    overlay.style.display = "flex";
+    overlay.innerHTML = "Great Job! Look out for the next QR code";
+    overlay.removeEventListener("click", startAudio);
+}
+
+async function startAudio() {
+    await Tone.start();
+    console.log('Audio is ready!');
+    overlay.style.display = "none";
+}
+
+// socket.on("set_section", (data) => {
+//     if (data == "killSleep") {
+//         killSleep()
+//     } else if (data == "resetSleep") {
+//         resetSleep()
+//     } else if (data == "stop_sleep") {
+//         stopSleep()
+//     }
+// })
+
+function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randomFloat(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
+</script>
+</body>

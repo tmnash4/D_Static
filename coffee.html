@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Coffee Coffee Coffee</title>
+    <style>
+        /* Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            touch-action: manipulation;
+            
+
+        }
+
+        
+
+        @media screen and (orientation: landscape) {
+    body {
+        transform: rotate(-90deg);
+        transform-origin: left top;
+        width: 100vw;
+        height: 100vh;
+        background-color: black;
+    }
+}
+
+        body {
+            user-select: none;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            background-color: black;
+
+        }
+
+    
+        /* Example styling for the content underneath */
+        .content {
+            position: relative;
+            z-index: 1; /* Lower z-index than overlay */
+        }
+
+        
+        /* Center the cup on the screen */
+        .cup-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black; /* Light background for contrast */
+            overflow: hidden; /* Ensure visible overflow */
+            transition: transform 4.5s linear;
+        }
+
+        /* Cup styling */
+
+
+        .insideDiv {
+            opacity: 1;
+            transition: opacity 2s linear, transform 5s linear;
+        }
+
+        .handle-outside {
+            clip-path: ellipse(29% 30% at 50% 50%);
+            position: absolute;
+            width: 37%;
+            height: 23%;
+            background-color: #00b5fd;
+            left: 57%;
+            top: 31%;
+            transform: rotate(10deg);
+        }
+
+        .handle-inside {
+            position: absolute;
+            clip-path: ellipse(29% 30% at 50% 50%);
+            width: 70%;
+            height: 60%;
+            background-color: rgb(0, 0, 0);
+            top: 17.5%;
+            left: 6%;
+
+        }
+
+
+        .handle-inside1 {
+            position: absolute;
+            clip-path: ellipse(29% 30% at 50% 50%);
+            width: 72%;
+            height: 68%;
+            background-color: rgb(0, 110, 255);
+            top: 15.5%;
+            left: 6%;
+            transform: rotate(-20deg);
+        }
+
+
+       
+
+        .left-eye {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: white;
+            border-radius: 50%;
+            left: 15%;
+            top: 20%;
+        }
+
+        .right-eye {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: white;
+            border-radius: 50%;
+            right: 15%;
+            top: 20%;
+        }
+
+        .left-pupil {
+
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: black;
+            border-radius: 50%;
+            left: 15%;
+            top: 15%;
+        }
+
+        .right-pupil {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: black;
+            border-radius: 50%;
+            right: 15%;
+            top: 15%;
+        }
+
+        .mouth {
+            position: absolute;
+            bottom: 15%;
+            width: 40%;
+            height: 20%;
+            margin: 0 auto;
+            background-color: white;
+            left: 30%;
+            border-radius: 0 0 190px 190px
+
+        }
+
+    
+    .redCup1 {
+       position: absolute;
+       left: 20%;
+       top: 33%;
+       width: 60%;
+       height: 27%;
+       background-color: #00b5fd;
+       clip-path: polygon(0 0, 100% 0, 80% 100%, 20% 100%);
+
+   }
+   .topPart2 {
+    position: absolute;
+    left: 17%;
+    top: 23%;
+    clip-path: ellipse(45% 8% at 50% 50%);
+    width: 66%;
+    height: 20%;
+    background-color:black;
+   }  
+
+   .topPart3 {
+    position: absolute;
+    left: 18%;
+    top: 24%;
+    clip-path: ellipse(45% 8% at 50% 50%);
+    width: 64%;
+    height: 18%;
+    background-color:white;
+
+   }
+
+   .topPart4 {
+    position: absolute;
+    left: 5%;
+    top: 13%;
+    clip-path: ellipse(45% 8% at 50% 50%);
+    width: 90%;
+    height: 80%;
+    background-color:rgb(97, 23, 23);
+    overflow: hidden;
+
+   }
+  
+
+   .bottomPart1 {
+    position: absolute;
+    left: 30%;
+    top: 47.9%;
+    clip-path: ellipse(45% 8% at 50% 50%);
+    width: 40%;
+    height: 24%;
+    background-color:#00b5fd;
+
+   }
+
+   .swirl {
+    position: absolute;
+    left: 30%;
+    top: 10%;
+    width: 50%;
+    height: 25%;
+    clip-path: polygon(34% 50%, 26% 50%, 19% 48%, 18% 39%, 20% 30%, 25% 26%, 33% 24%, 41% 24%, 49% 26%, 55% 31%, 58% 40%, 57% 49%, 56% 57%, 49% 64%, 42% 69%, 34% 73%, 28% 79%, 23% 84%, 31% 70%, 38% 65%, 45% 60%, 50% 54%, 50% 46%, 49% 39%, 44% 33%, 37% 30%, 29% 32%, 26% 36%, 26% 43%, 27% 47%);    
+    background-color:#82939983;
+    opacity: 0;
+
+   }
+
+   #clickOverlay.fade-out {
+  animation: overlayFade 1s ease-out forwards;
+}
+
+@keyframes overlayFade {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+   .swirl1 {
+    position: absolute;
+    transform: scaleX(-1);    
+    left: 5%;
+    top: 15%;
+    width: 40%;
+    height: 20%;
+    clip-path: polygon(34% 50%, 26% 50%, 19% 48%, 18% 39%, 20% 30%, 25% 26%, 33% 24%, 41% 24%, 49% 26%, 55% 31%, 58% 40%, 57% 49%, 56% 57%, 49% 64%, 42% 69%, 34% 73%, 28% 79%, 23% 84%, 31% 70%, 38% 65%, 45% 60%, 50% 54%, 50% 46%, 49% 39%, 44% 33%, 37% 30%, 29% 32%, 26% 36%, 26% 43%, 27% 47%);    
+    background-color:#82939983;
+    opacity: 0;
+
+
+   }
+
+   .swirl2 {
+    position: absolute;
+    left: 55%;
+    top: 18%;
+    width: 30%;
+    height: 15%;
+    clip-path: polygon(34% 50%, 26% 50%, 19% 48%, 18% 39%, 20% 30%, 25% 26%, 33% 24%, 41% 24%, 49% 26%, 55% 31%, 58% 40%, 57% 49%, 56% 57%, 49% 64%, 42% 69%, 34% 73%, 28% 79%, 23% 84%, 31% 70%, 38% 65%, 45% 60%, 50% 54%, 50% 46%, 49% 39%, 44% 33%, 37% 30%, 29% 32%, 26% 36%, 26% 43%, 27% 47%);    
+    background-color:#82939983;
+    opacity: 0;
+
+   }
+
+   @keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUpMirrored {
+  0% {
+    opacity: 0;
+    transform: scaleX(-1) translateY(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(-1) translateY(0);
+  }
+}
+
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+#clickOverlay {
+  position: fixed;
+  top: -10vh;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: black;
+  color: white;
+  font-size: 2rem;
+  font-family: sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  text-align: center;
+}
+
+
+.fade-in-up {
+  animation: fadeInUp 0.3s ease-out forwards; /* faster duration */
+  opacity: 1;
+}
+
+.fade-in-up-mirrored {
+  animation: fadeInUpMirrored 0.3s ease-out forwards;
+  opacity: 1;
+
+}
+
+.fade-out {
+  animation: fadeOut 0.3s ease-in forwards;
+}
+:root {
+    --particle-animation-duration: 20s;
+}
+
+@keyframes particleExplosion {
+    0% {
+        transform: scale(0.2);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+#clickWhen {
+    background-color: #00b5fd;
+    font-size: 1.5rem;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background-color: red;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: particleExplosion var(--particle-animation-duration) ease-in-out forwards;
+    opacity: 0; /* Ensures it fades in via transition */
+    transition: opacity 0.4s ease-in;
+}
+
+.left-eye,
+.right-eye,
+.left-pupil,
+.right-pupil,
+.swirl,
+.swirl1,
+.swirl2 {
+  pointer-events: none;
+}
+
+    </style>
+</head>
+<body>
+    <!-- <script src="/socket.io/socket.io.js"></script> -->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/tone/14.5.44/Tone.js'></script>
+    <button id="clickWhen">Click When Sip of Coffee is Taken</button>
+    <div class="cup-container">
+        <div id="instruction" style="position: absolute; color: white; top: 10%; font-size: 30px; text-align: center; transition: opacity 5s;">Press to make sound 🙂</div>
+        <!-- <div class="handle-outside">
+            <div class="handle-inside1"></div>
+            <div class="handle-inside"></div>
+        </div> -->
+        <div class="insideDiv" >
+            <div class="swirl"></div>
+            <div class="swirl1"></div>
+            <div class="swirl2"></div>
+            <div class="handle-outside">
+                <div class="handle-inside1"></div>
+                <div class="handle-inside"></div>
+            </div>
+            <div class='redCup1' >
+                <div class='left-eye'>
+                    <div class='left-pupil'></div>
+                </div>
+                <div class='right-eye'>
+                    <div class='right-pupil'></div>
+                </div>
+                <div class='mouth'></div>
+            </div>
+            <div class='topPart2'></div>
+            <div class='topPart3'>
+                <div class='topPart4'></div>
+            </div>
+            <div class='bottomPart1'></div>
+         </div>
+         <div id="instruction2" style="position: absolute; color: white; top: 43%; font-size: 30px; text-align: center; opacity: 0;transition: opacity 0.2s;">Great Job! You can put your phone away for now! 🙂</div>
+         <div id="instruction1" style="position: absolute; color: white; top: 70%; font-size: 30px; text-align: center; opacity: 0;transition: opacity 0.2s;"></div>
+    </div>
+    <div id="clickOverlay">Click to proceed</div>
+
+<script>
+
+//fading time on sleep scene x
+
+window.addEventListener('load', () => {
+    Tone.loaded().then(() => {
+        console.log("All buffers are preloaded");
+    }).catch(error => {
+        console.error("Error loading buffers:", error);
+    });
+});
+
+setTimeout(() => {
+    if (!clicked && state === "explode") {
+        // Trigger it manually if not already clicked
+        let randBuf = longArray[randomInt(0, longArray.length - 1)];
+        clicked = true;
+        gainN.gain.rampTo(0, 0.1);
+        explodeCup(intactCup);
+        randBuf.start();
+    }
+}, 2000); // 2 seconds
+
+document.addEventListener('gesturestart', function (e) {
+    e.preventDefault();
+});
+
+
+let gainN = new Tone.Gain(1).toDestination();
+let gainN1 = new Tone.Gain(1).toDestination();
+let clicked = false;
+
+let clickWhen = document.getElementById("clickWhen");
+
+let longArray = [];
+const longBuffers = [
+  new Tone.Buffer('/media/voices/longC.mp3'),
+  new Tone.Buffer('/media/voices/longE.mp3'),
+  new Tone.Buffer('/media/voices/longG.mp3')
+];
+
+// smell
+function createPlayerArray(prefix, count, destination) {
+  let arr = [];
+  for (let i = 1; i <= count; i++) {
+    arr.push(new Tone.Player(`/media/voices/${prefix}${i}.mp3`).connect(destination));
+  }
+  return arr;
+}
+
+let smellArray = createPlayerArray("smell", 8, gainN);
+let tasteArray = createPlayerArray("taste", 7, gainN);
+let feelArray = createPlayerArray("feel", 7, gainN);
+let zingArray = createPlayerArray("zing", 8, gainN);
+let wakeArray = createPlayerArray("wake", 8, gainN);
+let soulArray = createPlayerArray("soul", 8, gainN);
+
+let arrayOfArrays = [smellArray, tasteArray, feelArray, zingArray, wakeArray, soulArray];
+
+
+function setFullHeight() {
+    const fullHeightDiv = document.querySelector('.cup-container');
+    fullHeightDiv.style.height = `${window.innerHeight}px`;
+}
+
+window.addEventListener('resize', setFullHeight);
+window.addEventListener('load', setFullHeight);
+
+let state = 2;
+
+
+let instruction = document.querySelector("#instruction");
+let instruction1 = document.querySelector("#instruction1");
+let instruction2 = document.querySelector("#instruction2");
+
+setTimeout(() => {
+    instruction.style.opacity = 0;
+    setTimeout(() => {
+        instruction.style.display = "none"
+    }, 10000)
+}, 5000)
+
+Tone.context.lookAhead = 0;
+let rand = 0;
+console.log(rand)
+ 
+function getRandomWholeNumber(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+ 
+// var socketName = "default";
+// var socket = io();  
+
+let intactCup = document.querySelector(".insideDiv");
+let mouth = document.querySelector(".mouth");
+let swirl = document.querySelector(".swirl");
+let swirl1 = document.querySelector(".swirl1");
+let swirl2 = document.querySelector(".swirl2");
+intactCup.addEventListener("click", sec1);
+
+
+
+let pingPong = new Tone.FeedbackDelay("8n", 0.8).connect(gainN);
+
+
+let mouthAnimInterval = null;
+let mouthAnimating = false;
+
+
+
+function sec1(e) {
+    if (e) e.preventDefault();
+    let randBuf;
+    let words = [];
+    
+    // arrayOfArrays.forEach((arr) => {
+    //     randBuf =  
+    // }); //FIX!!
+
+
+
+    if (state !== "explode") {
+        // Choose sound + words
+        switch (state) {
+            case 2:
+                randBuf = smellArray[randomInt(0, smellArray.length - 1)];
+                words = ["The", "smell"];
+                state = 3;
+                break;
+            case 3:
+                randBuf = tasteArray[randomInt(0, tasteArray.length - 1)];
+                words = ["The", "taste"];
+                state = 4;
+                break;
+            case 4:
+                randBuf = feelArray[randomInt(0, feelArray.length - 1)];
+                words = ["The", "feel", "on", "my", "mouth"];
+                state = 5;
+                break;
+            case 5:
+                randBuf = zingArray[randomInt(0, zingArray.length - 1)];
+                words = ["The", "zing"];
+                state = 6;
+                break;
+            case 6:
+                randBuf = wakeArray[randomInt(0, wakeArray.length - 1)];
+                words = ["To", "wake"];
+                state = 7;
+                break;
+            case 7:
+                randBuf = soulArray[randomInt(0, soulArray.length - 1)];
+                words = ["My", "soul"];
+                state = 2;
+                break;
+        }
+
+        randBuf.start();
+
+        // Reset mouth style
+        mouth.style.width = '40%';
+        mouth.style.height = '40%';
+        mouth.style.borderRadius = '50%';
+
+        // Start or maintain mouth animation
+        if (!mouthAnimating) {
+            mouthAnimating = true;
+            mouthAnimInterval = setInterval(() => {
+                mouth.style.height = (mouth.style.height === "30%") ? "40%" : "30%";
+            }, 300);
+        }
+
+        // ✅ Restore reveal text
+        if (words.length > 0) {
+            revealWords(instruction1, words, randBuf.buffer.duration * 1000);
+        }
+
+        // Trigger swirl animation
+        swirl.classList.remove('fade-in-up', 'fade-out');
+        swirl1.classList.remove('fade-in-up-mirrored', 'fade-out');
+        swirl2.classList.remove('fade-in-up', 'fade-out');
+        void swirl.offsetWidth;
+        swirl.classList.add('fade-in-up');
+        swirl1.classList.add('fade-in-up-mirrored');
+        swirl2.classList.add('fade-in-up');
+
+        setTimeout(() => {
+            swirl.classList.remove('fade-in-up');
+            swirl.classList.add('fade-out');
+            swirl1.classList.remove('fade-in-up-mirrored');
+            swirl1.classList.add('fade-out');
+            swirl2.classList.remove('fade-in-up');
+            swirl2.classList.add('fade-out');
+        }, 600);
+
+        // Stop mouth animation after sound ends
+        setTimeout(() => {
+            if (mouthAnimInterval) {
+                clearInterval(mouthAnimInterval);
+                mouthAnimInterval = null;
+                mouthAnimating = false;
+                mouth.style.height = '20%';
+                mouth.style.borderRadius = '0 0 190px 190px';
+            }
+        }, randBuf.buffer.duration * 1000 + 500);
+    }
+
+    else if (state === "explode") {
+        if (!clicked) {
+            clicked = true;
+            gainN.gain.rampTo(0, 0.1);
+            randBuf = longArray[randomInt(0, longArray.length - 1)];
+            explodeCup(intactCup, e);
+            randBuf.start();
+        }
+    }
+}
+clickWhen.addEventListener("click", clickWhenFunction);
+
+function clickWhenFunction() {
+        gainN.gain.rampTo(0, 0.1);
+        randBuf = longArray[randomInt(0, longArray.length - 1)];
+        explodeCup(intactCup);
+        randBuf.start();
+        clickWhen.innerHTML = "Reset";
+        clickWhen.removeEventListener("click", clickWhenFunction);
+        clickWhen.addEventListener("click", reset);
+        clickWhen.style.visibility = "hidden";
+}
+
+
+// socket.on("get_section", (data) => {
+//     if (data == 2) {
+//         state = 2
+//     } else if (data == 3) {
+//         state = 3
+//     } else if (data == 4) {
+//         state = 4
+//     } else if (data == 5) {
+//         state = 5
+//     } else if (data == 6) {
+//         state = 6
+//     } else if (data == 7) {
+//         state = 7
+//     } else if (data == "explode") {
+//         state = "explode"
+//     } else if (data == "resetCoffee") {
+//         reset()
+//     } else if (data == "endCoffee") {
+//         end()
+//     }
+// }) 
+
+// socket.on("set_section", (data) => {
+//     if (data == 2) {
+//         state = 2
+//     } else if (data == 3) {
+//         state = 3
+//     } else if (data == 4) {
+//         state = 4
+//     } else if (data == 5) {
+//         state = 5
+//     } else if (data == 6) {
+//         state = 6
+//     } else if (data == 7) {
+//         state = 7
+//     } else if (data == "explode") {
+//        state = "explode"
+//     } else if (data == "resetCoffee") {
+//         reset()
+//     } else if (data == "endCoffee") {
+//         end()
+//     }
+// }) 
+
+function explode() {
+    console.log("cup is exploding")
+}
+
+
+function reset() {
+    
+    instruction.style.display = "block";
+    instruction2.style.visibility = "hidden";
+    intactCup.style.display = "block";
+    clickWhen.innerHTML = "Click When Sip of Coffee is Taken";
+    clickWhen.removeEventListener("click", reset);
+    clickWhen.addEventListener("click", clickWhenFunction);
+
+    // Restore overlay
+    clickOverlay.style.display = 'flex';
+    clickOverlay.classList.remove("fade-out");
+    clickOverlay.style.opacity = "1";
+
+    // Restore exploded parts
+    intactCupBody.style.opacity = 1;
+    intactCupTop.style.visibility = "visible";
+    intactCupTop1.style.visibility = "visible";
+    intactCupBottom.style.visibility = "visible";
+    intactCupHandle.style.visibility = "visible";
+
+    // Reset state
+    clicked = false;
+    state = 2;
+    gainN.gain.rampTo(1, 1)
+}
+
+
+
+function endForGood() {
+    setTimeout(()=> {
+        cupContainer.style.visibility = "hidden";
+        location.href = "blackscreen.html"
+         // Change this after the fact!
+    }, 5000)  
+    intactCup.removeEventListener("click", sec1)
+    cupContainer.style.transform = "scale(0.01)";
+    gainN.gain.rampTo(0, 4)
+    gainN1.gain.rampTo(0, 4)
+}
+
+function blackout() {
+   location.href = "blackscreen.html"
+}
+
+
+
+//ADD A REVERB TO THE DELAY!!!!
+
+
+let revealTimeouts = [];
+
+function revealWords(element, words, totalDuration = 3000) {
+    // Clear any existing timeouts
+    revealTimeouts.forEach(clearTimeout);
+    revealTimeouts = [];
+
+    // Reset text content and show element
+    element.innerHTML = "";
+    element.style.opacity = 1;
+
+    if (!words || words.length === 0) return;
+
+    const totalWords = words.length;
+    const interval = totalDuration / totalWords;
+
+    words.forEach((word, index) => {
+        const timeout = setTimeout(() => {
+            element.innerHTML += (index === 0 ? "" : " ") + word;
+
+            // After final word, fade out
+            if (index === totalWords - 1) {
+                const hideTimeout = setTimeout(() => {
+                    element.style.opacity = 0;
+                }, state !== 4 ? 1000 : 3000);
+                revealTimeouts.push(hideTimeout);
+            }
+        }, index * interval);
+        revealTimeouts.push(timeout);
+    });
+}
+
+
+let intactCupBody = document.querySelector(".redCup1")
+let intactCupTop = document.querySelector(".topPart2")
+let intactCupTop1 = document.querySelector(".topPart3")
+let intactCupBottom = document.querySelector(".bottomPart1")
+let intactCupHandle = document.querySelector(".handle-outside");
+
+function explodeCup(target, event) {
+    console.log("Exploding");
+
+    document.documentElement.style.setProperty('--particle-animation-duration', '5s');
+
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+
+    intactCupBody.style.opacity = 0;
+    intactCupTop.style.visibility = "hidden";
+    intactCupTop1.style.visibility = "hidden";
+    intactCupBottom.style.visibility = "hidden";
+    intactCupHandle.style.visibility = "hidden";
+
+    const rect = target.getBoundingClientRect();
+    const containerRect = target.parentElement.getBoundingClientRect();
+
+    const cupCenter = {
+        x: rect.left - containerRect.left + rect.width / 2,
+        y: rect.top - containerRect.top + rect.height / 2
+    };
+
+    const colors = ['#ff1744', '#ff9100', '#00e676', '#2979ff', '#f50057', '#fff176'];
+
+    let intervalCount = 0;
+    const maxIntervals = 200; // Number of bursts
+    const interval = setInterval(() => {
+        for (let i = 0; i < 10; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+
+            const size = Math.random() * 5 + 10;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+
+            // Random color and shape
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.backgroundColor = color;
+            particle.style.borderRadius = Math.random() < 0.5 ? '50%' : '15%';
+            particle.style.boxShadow = `0 0 ${Math.random() * 10 + 5}px ${color}`;
+
+            const angle = Math.random() * 2 * Math.PI;
+            const distance = Math.random() * 200;
+
+            particle.style.position = 'absolute';
+            particle.style.left = `${cupCenter.x + distance * Math.cos(angle) - size / 2}px`;
+            particle.style.top = `${cupCenter.y + distance * Math.sin(angle) - size / 2}px`;
+
+            // Fade in immediately
+            particle.style.opacity = '0';
+            particle.style.transition = 'opacity 0.4s ease-in';
+            requestAnimationFrame(() => {
+                particle.style.opacity = '1';
+            });
+
+            target.appendChild(particle);
+
+            particle.addEventListener('animationend', () => {
+                particle.remove();
+            });
+        }
+
+        intervalCount++;
+        if (intervalCount >= maxIntervals) {
+            clearInterval(interval);
+        }
+    }, 50); // Add particles every 50ms
+    setTimeout(() => {
+        end()
+        // socket.emit("section", "endCoffee")
+    }, 17000)
+}
+
+function end() {
+    instruction.style.visibility = "hidden";
+    instruction2.style.opacity = 1;
+    instruction2.style.visibility = "visible";
+    intactCup.style.display = "none";
+    document.getElementById('clickOverlay').style.display = 'none';
+
+    // Stop mouth animation
+    if (mouthAnimInterval) {
+        clearInterval(mouthAnimInterval);
+        mouthAnimInterval = null;
+        mouthAnimating = false;
+        mouth.style.height = '20%';
+        mouth.style.borderRadius = '0 0 190px 190px';
+    }
+    clickWhen.style.visibility = "visible";
+}
+
+
+
+// socket.on("gain_up", () => {
+//     gainV++
+//     gainV1++
+// })
+
+// socket.on("gain_down", () => {
+//     gainV--
+//     gainV1--
+// })
+
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randomFloat(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+const clickOverlay = document.getElementById("clickOverlay");
+
+clickOverlay.addEventListener("click", async () => {
+    await Tone.start();
+    console.log("Audio context started");
+
+    longArray = longBuffers.map(buffer => new Tone.Player(buffer).connect(gainN1));
+
+    clickOverlay.classList.add("fade-out");
+setTimeout(() => {
+    clickOverlay.style.display = "none";
+}, 800); // Match the fade duration
+});
+
+clickOverlay.addEventListener("touchstart", () => {
+    // Duplicate the click behavior for early engagement
+    clickOverlay.click();
+}, { once: true, passive: true });
+
+</script>
+
+
+
+</body>
+</html>
