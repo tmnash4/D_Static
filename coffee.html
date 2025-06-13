@@ -692,7 +692,7 @@ function explode() {
 
 
 function reset() {
-    
+    document.querySelectorAll('.particle').forEach(p => p.remove());
     instruction.style.display = "block";
     instruction2.style.visibility = "hidden";
     intactCup.style.display = "block";
